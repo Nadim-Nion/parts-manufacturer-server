@@ -30,6 +30,7 @@ async function run() {
 
         const database = client.db('partsDB');
         const partsCollection = database.collection('parts');
+        const reviewsCollection = database.collection('reviews');
 
 
         /*------------------------------------------ 
@@ -43,6 +44,17 @@ async function run() {
             res.send(result);
         });
 
+
+        /*-------------------------------------------- 
+                Reviews Collection API
+        ---------------------------------------------*/
+
+        // Get all reviews data
+        app.get('/reviews', async (req, res) => {
+            const cursor = reviewsCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
 
 
         // Send a ping to confirm a successful connection
