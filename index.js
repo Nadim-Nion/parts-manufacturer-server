@@ -31,6 +31,7 @@ async function run() {
         const database = client.db('partsDB');
         const partsCollection = database.collection('parts');
         const reviewsCollection = database.collection('reviews');
+        const techNewsCollection = database.collection('techNews');
 
 
         /*------------------------------------------ 
@@ -52,6 +53,18 @@ async function run() {
         // Get all reviews data
         app.get('/reviews', async (req, res) => {
             const cursor = reviewsCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+
+        /*-------------------------------------------- 
+                TechNews Collection API
+        ---------------------------------------------*/
+
+        // Get the all tech news data
+        app.get('/techNews', async (req, res) => {
+            const cursor = techNewsCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         })
