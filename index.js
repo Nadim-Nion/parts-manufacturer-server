@@ -32,6 +32,7 @@ async function run() {
         const partsCollection = database.collection('parts');
         const reviewsCollection = database.collection('reviews');
         const techNewsCollection = database.collection('techNews');
+        const buildGuideCollection = database.collection('buildGuides');
 
 
         /*------------------------------------------ 
@@ -65,6 +66,18 @@ async function run() {
         // Get the all tech news data
         app.get('/techNews', async (req, res) => {
             const cursor = techNewsCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+
+        /*--------------------------------------------- 
+                Build Guide Collection API
+        ----------------------------------------------*/
+
+        // Get the all build guide dat
+        app.get('/buildGuides', async (req, res) => {
+            const cursor = buildGuideCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         })
