@@ -33,6 +33,7 @@ async function run() {
         const reviewsCollection = database.collection('reviews');
         const techNewsCollection = database.collection('techNews');
         const buildGuideCollection = database.collection('buildGuides');
+        const purchasedPartsCollection = database.collection('purchasedParts');
 
 
         /*------------------------------------------ 
@@ -80,8 +81,19 @@ async function run() {
             const cursor = buildGuideCollection.find();
             const result = await cursor.toArray();
             res.send(result);
-        })
+        });
 
+
+        /*--------------------------------------------- 
+                Purchased Parts Collection API
+        ---------------------------------------------*/
+
+        // Create (or Insert) new purchasedParts
+        app.post('/purchasedParts', async (req, res) => {
+            const purchasedParts = req.body;
+            const result = await purchasedPartsCollection.insertOne(purchasedParts);
+            res.send(result);
+        });
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
