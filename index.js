@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -88,12 +88,28 @@ async function run() {
                 Purchased Parts Collection API
         ---------------------------------------------*/
 
+        // Get all purchaseParts
+        app.get('/purchasedParts', async (req, res) => {
+            const cursor = purchasedPartsCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+
+        });
+
         // Create (or Insert) new purchasedParts
         app.post('/purchasedParts', async (req, res) => {
             const purchasedParts = req.body;
             const result = await purchasedPartsCollection.insertOne(purchasedParts);
             res.send(result);
         });
+
+        // Delete a purchasedPart by its id
+        app.delete('/purchasedParts/:id', async (req, res) => {
+            const id = req.params;
+            const query = { _id: new ObjectId(id) };
+            const result = await purchasedPartsCollection.deleteOne(query);
+            res.send(result);
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
