@@ -88,9 +88,11 @@ async function run() {
                 Purchased Parts Collection API
         ---------------------------------------------*/
 
-        // Get all purchaseParts
+        // Get all purchaseParts (Logged-in users can view their purchasedParts)
         app.get('/purchasedParts', async (req, res) => {
-            const cursor = purchasedPartsCollection.find();
+            const email = req.query.email;
+            const query = { userEmail: email };
+            const cursor = purchasedPartsCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
 
@@ -105,7 +107,7 @@ async function run() {
 
         // Delete a purchasedPart by its id
         app.delete('/purchasedParts/:id', async (req, res) => {
-            const id = req.params;
+            const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await purchasedPartsCollection.deleteOne(query);
             res.send(result);
