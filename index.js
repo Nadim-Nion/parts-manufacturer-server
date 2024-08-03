@@ -136,6 +136,62 @@ async function run() {
             });
         });
 
+
+        /*-------------------------------------- 
+                Aggregation Pipeline API
+        --------------------------------------*/
+
+        // Implement aggregation pipeline on PurchasedParts Collection to get details about parts from Parts Collection
+        app.get('/purchasedParts/details', async (req, res) => {
+            const email = req.query.email;
+            const query = { userEmail: email };
+            const result = await purchasedPartsCollection.aggregate([
+                {
+                    $match: query
+                },
+                {
+                    $addFields: {
+                        partId: {
+                            $toObjectId: "$partId"
+                        }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'parts',
+                        localField: 'partId',
+                        foreignField: '_id',
+                        as: 'partDetails'
+                    }
+                },
+                {
+                    $unwind: "$partDetails"
+                },
+                {
+                    $addFields: {
+                        totalPrice: {
+                            $multiply: ['$quantity', '$partDetails.price_per_unit']
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        partsName: 1,
+                        userName: 1,
+                        userEmail: 1,
+                        quantity: 1,
+                        price_per_unit: "$partDetails.price_per_unit",
+                        totalPrice: 1,
+                        userAddress: 1,
+                        phone: 1
+                    }
+                }
+            ]).toArray();
+
+            res.send(result);
+        });
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
