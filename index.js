@@ -61,6 +61,16 @@ async function run() {
             res.send(result);
         });
 
+        // Create (or Add) a new review
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            if (review.rating) {
+                review.rating = parseInt(review.rating, 10);
+            }
+            const result = await reviewsCollection.insertOne(review);
+            res.send(result)
+        })
+
 
         /*-------------------------------------------- 
                 TechNews Collection API
