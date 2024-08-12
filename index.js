@@ -36,6 +36,7 @@ async function run() {
         const buildGuideCollection = database.collection('buildGuides');
         const purchasedPartsCollection = database.collection('purchasedParts');
         const paymentCollection = database.collection('payments');
+        const profileCollection = database.collection('profiles');
 
 
         /*------------------------------------------ 
@@ -221,6 +222,17 @@ async function run() {
         app.post('/payments', async (req, res) => {
             const payment = req.body;
             const result = await paymentCollection.insertOne(payment);
+            res.send(result);
+        });
+
+        /*-------------------------------------- 
+                My Profile API
+        ---------------------------------------*/
+
+        // Create (Add) a new profile info
+        app.post('/myProfiles', async (req, res) => {
+            const userInfo = req.body;
+            const result = await profileCollection.insertOne(userInfo);
             res.send(result);
         });
 
