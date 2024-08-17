@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -16,6 +17,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
+app.use(cookieParser());
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.qf8hqc8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -29,6 +31,22 @@ const client = new MongoClient(uri, {
         deprecationErrors: true,
     }
 });
+
+// Custom Middlewares
+const verifyToken = (req, res, next) => {
+    const token = req.cookies.token;
+    // console.log('Token in the middleware:', token);
+    if (!token) {
+        return res.status(401).send({ message: 'unauthorized access' });
+    }
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(401).send({ message: 'unauthorized access' });
+        }
+        req.user = decoded;
+        next();
+    })
+}
 
 async function run() {
     try {
@@ -51,7 +69,7 @@ async function run() {
         // JWT related API
         app.post('/jwt', async (req, res) => {
             const user = req.body;
-            console.log('User for token:', user);
+            // console.log('User for token:', user);
             const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
             res
                 .cookie('token', token, {
@@ -65,7 +83,7 @@ async function run() {
         // Clear the Cookie after logging-out
         app.post('/logout', async (req, res) => {
             const user = req.body;
-            console.log('Logging-out user:', user);
+            // console.log('Logging-out user:', user);
             res
                 .clearCookie('token', { maxAge: 0 })
                 .send({ success: true });
@@ -134,8 +152,13 @@ async function run() {
         ---------------------------------------------*/
 
         // Get all purchaseParts (Logged-in users can view their purchasedParts)
-        app.get('/purchasedParts', async (req, res) => {
+        app.get('/purchasedParts', verifyToken, async (req, res) => {
             const email = req.query.email;
+            // console.log('Cookie in PurchasedParts:', req.cookies);
+            console.log('Token owner info:', req.user);
+            if (req.user.email !== req.query.email) {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
             const query = { userEmail: email };
             const cursor = purchasedPartsCollection.find(query);
             const result = await cursor.toArray();
@@ -186,8 +209,13 @@ async function run() {
         --------------------------------------*/
 
         // Implement aggregation pipeline on PurchasedParts Collection to get details about parts from Parts Collection
-        app.get('/purchasedParts/details', async (req, res) => {
+        app.get('/purchasedParts/details', verifyToken, async (req, res) => {
             const email = req.query.email;
+            // console.log('Cookie in purchasedParts with Details:', req.cookies);
+            console.log('Token owner info:', req.user);
+            if (req.user.email !== req.query.email) {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
             const query = { userEmail: email };
             const result = await purchasedPartsCollection.aggregate([
                 {
@@ -242,8 +270,13 @@ async function run() {
         ---------------------------------*/
 
         // Get the all payment resources (Logged-in users can view their purchasedParts)
-        app.get('/payments', async (req, res) => {
+        app.get('/payments', verifyToken, async (req, res) => {
             const email = req.query.email;
+            // console.log('Cookie in Payments:', req.cookies);
+            console.log('Token owner info:', req.user);
+            if (req.user.email !== req.query.email) {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
             const query = { email: email };
             const cursor = paymentCollection.find(query);
             const result = await cursor.toArray();
