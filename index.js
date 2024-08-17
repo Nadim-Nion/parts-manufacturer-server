@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -8,7 +9,12 @@ const port = process.env.PORT || 5000;
 
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+    origin: [
+        'http://localhost:5173'
+    ],
+    credentials: true
+}));
 app.use(express.json());
 
 
@@ -38,6 +44,32 @@ async function run() {
         const paymentCollection = database.collection('payments');
         const profileCollection = database.collection('profiles');
 
+        /*----------------------------- 
+                JWT API
+        -----------------------------*/
+
+        // JWT related API
+        app.post('/jwt', async (req, res) => {
+            const user = req.body;
+            console.log('User for token:', user);
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+            res
+                .cookie('token', token, {
+                    httpOnly: true,
+                    secure: true, // Make it true in the Production Stage
+                    sameSite: 'none'
+                })
+                .send({ success: true });
+        });
+
+        // Clear the Cookie after logging-out
+        app.post('/logout', async (req, res) => {
+            const user = req.body;
+            console.log('Logging-out user:', user);
+            res
+                .clearCookie('token', { maxAge: 0 })
+                .send({ success: true });
+        });
 
         /*------------------------------------------ 
                 Parts Collection API
