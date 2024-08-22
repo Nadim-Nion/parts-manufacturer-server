@@ -316,6 +316,13 @@ async function run() {
         // Create a new user info
         app.post('/users', async (req, res) => {
             const user = req.body;
+            // Insert a user to the DB if he doesn't exist
+            const query = { email: user.email };
+            const existingUser = await userCollection.findOne(query);
+            console.log(existingUser);
+            if (existingUser) {
+                return res.send({ message: 'user already exists', insertedId: null });
+            }
             const result = await userCollection.insertOne(user);
             res.send(result);
         });
