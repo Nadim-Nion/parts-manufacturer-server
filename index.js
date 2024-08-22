@@ -61,6 +61,7 @@ async function run() {
         const purchasedPartsCollection = database.collection('purchasedParts');
         const paymentCollection = database.collection('payments');
         const profileCollection = database.collection('profiles');
+        const userCollection = database.collection('users');
 
         /*----------------------------- 
                 JWT API
@@ -266,7 +267,7 @@ async function run() {
 
 
         /*--------------------------------- 
-                Payment Related API
+                Payment Collection API
         ---------------------------------*/
 
         // Get the all payment resources (Logged-in users can view their purchasedParts)
@@ -291,13 +292,31 @@ async function run() {
         });
 
         /*-------------------------------------- 
-                My Profile API
+               Profile Collection API
         ---------------------------------------*/
 
         // Create (Add) a new profile info
         app.post('/myProfiles', async (req, res) => {
             const userInfo = req.body;
             const result = await profileCollection.insertOne(userInfo);
+            res.send(result);
+        });
+
+        /*----------------------------------------- 
+                User Collection API
+        ------------------------------------------*/
+
+        // Get all users info
+        app.get('/users', async (req, res) => {
+            const cursor = userCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        // Create a new user info
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await userCollection.insertOne(user);
             res.send(result);
         });
 
