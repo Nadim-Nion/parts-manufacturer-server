@@ -326,6 +326,19 @@ async function run() {
             res.send(result);
         });
 
+        // Update the specific field of a document
+        app.patch('/users/admin/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    role: 'admin'
+                }
+            };
+            const result = await userCollection.updateOne(filter, updatedDoc);
+            res.send(result);
+        })
+
         // Delete a user by its id
         app.delete('/users/:id', async (req, res) => {
             const id = req.params.id;
