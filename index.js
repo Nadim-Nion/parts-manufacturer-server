@@ -32,22 +32,6 @@ const client = new MongoClient(uri, {
     }
 });
 
-// Custom Middlewares
-const verifyToken = (req, res, next) => {
-    const token = req.cookies.token;
-    console.log('Token in the middleware:', token);
-    if (!token) {
-        return res.status(401).send({ message: 'unauthorized access' });
-    }
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-        if (err) {
-            return res.status(401).send({ message: 'unauthorized access' });
-        }
-        req.user = decoded;
-        next();
-    })
-};
-
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
@@ -63,6 +47,38 @@ async function run() {
         const profileCollection = database.collection('profiles');
         const userCollection = database.collection('users');
 
+        /*-------------------------------   
+                Custom Middlewares 
+        ---------------------------------*/
+
+        // User have to logged-in or signed-up to get the access of data
+        const verifyToken = (req, res, next) => {
+            const token = req.cookies.token;
+            // console.log('Token in the middleware:', token);
+            if (!token) {
+                return res.status(401).send({ message: 'unauthorized access' });
+            }
+            jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+                if (err) {
+                    return res.status(401).send({ message: 'unauthorized access' });
+                }
+                req.user = decoded;
+                next();
+            })
+        };
+
+        // verify the user is admin or not after verifyToken
+        const verifyAdmin = async (req, res, next) => {
+            const email = req.user.email;
+            const query = { email: email };
+            const user = await userCollection.findOne(query);
+            const isAdmin = user?.role === 'admin';
+            if (!isAdmin) {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+            next();
+        }
+
         /*----------------------------- 
                 JWT API
         -----------------------------*/
@@ -76,6 +92,7 @@ async function run() {
                 .cookie('token', token, {
                     httpOnly: true,
                     secure: true, // Make it true in the Production Stage
+                    sameSite: 'none'
                 })
                 .send({ success: true });
         });
@@ -155,7 +172,7 @@ async function run() {
         app.get('/purchasedParts', verifyToken, async (req, res) => {
             const email = req.query.email;
             // console.log('Cookie in PurchasedParts:', req.cookies);
-            console.log('Token owner info:', req.user);
+            // console.log('Token owner info:', req.user);
             if (req.user.email !== req.query.email) {
                 return res.status(403).send({ message: 'forbidden access' });
             }
@@ -212,7 +229,7 @@ async function run() {
         app.get('/purchasedParts/details', verifyToken, async (req, res) => {
             const email = req.query.email;
             // console.log('Cookie in purchasedParts with Details:', req.cookies);
-            console.log('Token owner info:', req.user);
+            // console.log('Token owner info:', req.user);
             if (req.user.email !== req.query.email) {
                 return res.status(403).send({ message: 'forbidden access' });
             }
@@ -273,7 +290,7 @@ async function run() {
         app.get('/payments', verifyToken, async (req, res) => {
             const email = req.query.email;
             // console.log('Cookie in Payments:', req.cookies);
-            console.log('Token owner info:', req.user);
+            // console.log('Token owner info:', req.user);
             if (req.user.email !== req.query.email) {
                 return res.status(403).send({ message: 'forbidden access' });
             }
@@ -306,7 +323,7 @@ async function run() {
         ------------------------------------------*/
 
         // Get all users info
-        app.get('/users', verifyToken, async (req, res) => {
+        app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
             const cursor = userCollection.find();
             const result = await cursor.toArray();
             res.send(result);
@@ -320,7 +337,6 @@ async function run() {
             }
             const query = { email: email };
             const user = await userCollection.findOne(query);
-            console.log(user);
             let admin = false;
             if (user) {
                 admin = user?.role === 'admin'
@@ -342,7 +358,7 @@ async function run() {
         });
 
         // Update the specific field of a document
-        app.patch('/users/admin/:id', async (req, res) => {
+        app.patch('/users/admin/:id', verifyToken, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
             const updatedDoc = {
@@ -355,7 +371,7 @@ async function run() {
         })
 
         // Delete a user by its id
-        app.delete('/users/:id', async (req, res) => {
+        app.delete('/users/:id', verifyToken, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await userCollection.deleteOne(query);
