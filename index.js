@@ -35,7 +35,7 @@ const client = new MongoClient(uri, {
 // Custom Middlewares
 const verifyToken = (req, res, next) => {
     const token = req.cookies.token;
-    // console.log('Token in the middleware:', token);
+    console.log('Token in the middleware:', token);
     if (!token) {
         return res.status(401).send({ message: 'unauthorized access' });
     }
@@ -46,7 +46,7 @@ const verifyToken = (req, res, next) => {
         req.user = decoded;
         next();
     })
-}
+};
 
 async function run() {
     try {
@@ -76,7 +76,6 @@ async function run() {
                 .cookie('token', token, {
                     httpOnly: true,
                     secure: true, // Make it true in the Production Stage
-                    sameSite: 'none'
                 })
                 .send({ success: true });
         });
@@ -307,10 +306,26 @@ async function run() {
         ------------------------------------------*/
 
         // Get all users info
-        app.get('/users', async (req, res) => {
+        app.get('/users', verifyToken, async (req, res) => {
             const cursor = userCollection.find();
             const result = await cursor.toArray();
             res.send(result);
+        });
+
+        // Check the user is admin or not
+        app.get('/users/admin/:email', verifyToken, async (req, res) => {
+            const email = req.params.email;
+            if (email !== req.user.email) {
+                return res.send({ message: 'forbidden access' });
+            }
+            const query = { email: email };
+            const user = await userCollection.findOne(query);
+            console.log(user);
+            let admin = false;
+            if (user) {
+                admin = user?.role === 'admin'
+            }
+            res.send({ admin });
         });
 
         // Create a new user info
