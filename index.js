@@ -117,6 +117,13 @@ async function run() {
             res.send(result);
         });
 
+        // Create (or Add) a new part data
+        app.post('/parts', verifyToken, verifyAdmin, async (req, res) => {
+            const part = req.body;
+            const result = await partsCollection.insertOne(part);
+            res.send(result);
+        });
+
 
         /*-------------------------------------------- 
                 Reviews Collection API
