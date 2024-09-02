@@ -128,9 +128,7 @@ async function run() {
         app.delete('/parts/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
-            console.log(query);
             const result = await partsCollection.deleteOne(query);
-            console.log(result);
             res.send(result);
         });
 
