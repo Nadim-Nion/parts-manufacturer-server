@@ -117,6 +117,14 @@ async function run() {
             res.send(result);
         });
 
+        // Get a specific part data
+        app.get('/parts/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await partsCollection.findOne(query);
+            res.send(result);
+        });
+
         // Create (or Add) a new part data
         app.post('/parts', verifyToken, verifyAdmin, async (req, res) => {
             const part = req.body;
@@ -124,8 +132,29 @@ async function run() {
             res.send(result);
         });
 
+        // Update the part data
+        app.put('/parts/:id', verifyToken, verifyAdmin, async (req, res) => {
+            const part = req.body;
+            console.log(part);
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedPart = {
+                $set: {
+                    name: part.name,
+                    image: part.image,
+                    short_description: part.short_description,
+                    minimum_order_quantity: part.minimum_order_quantity,
+                    available_quantity: part.available_quantity,
+                    price_per_unit: part.price_per_unit
+                }
+            };
+            const result = await partsCollection.updateOne(filter, updatedPart, options);
+            res.send(result);
+        });
+
         // Delete an specific Part Item by its id
-        app.delete('/parts/:id', async (req, res) => {
+        app.delete('/parts/:id', verifyToken, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await partsCollection.deleteOne(query);
@@ -383,7 +412,7 @@ async function run() {
             };
             const result = await userCollection.updateOne(filter, updatedDoc);
             res.send(result);
-        })
+        });
 
         // Delete a user by its id
         app.delete('/users/:id', verifyToken, verifyAdmin, async (req, res) => {
