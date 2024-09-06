@@ -233,6 +233,19 @@ async function run() {
             res.send(result);
         });
 
+        // Update the field from status: pending to shipped
+        app.patch('/purchasedParts/status/:id', verifyToken, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updatedStatus = {
+                $set: {
+                    status: 'shipped'
+                }
+            };
+            const result = await purchasedPartsCollection.updateOne(filter, updatedStatus);
+            res.send(result);
+        });
+
         // Delete a purchasedPart by its id
         app.delete('/purchasedParts/:id', async (req, res) => {
             const id = req.params.id;
@@ -324,9 +337,9 @@ async function run() {
             res.send(result);
         });
 
-        /*----------------------------------------- 
+        /*------------------------------------------------- 
                 Aggregation Pipeline API 2
-        ------------------------------------------*/
+        --------------------------------------------------*/
 
         // Implement Aggregation Pipeline to the purchasedParts Collection with payments Collection to get details whether users have paid or not
         app.get('/purchasedParts/payments', verifyToken, verifyAdmin, async (req, res) => {
@@ -362,11 +375,15 @@ async function run() {
                         },
                         status: {
                             $cond: {
-                                if: {
-                                    $ifNull: ["$paymentInfo.status", null]
-                                },
-                                then: '$paymentInfo.status',
-                                else: 'unpaid'
+                                if: { $eq: ['$status', 'shipped'] },
+                                then: 'shipped',
+                                else: {
+                                    $cond: {
+                                        if: { $ifNull: ['$paymentInfo.status', null] },
+                                        then: '$paymentInfo.status',
+                                        else: 'unpaid'
+                                    }
+                                }
                             }
                         }
                     }
