@@ -246,8 +246,16 @@ async function run() {
             res.send(result);
         });
 
+        // Delete an unpaid order from purchasedParts
+        app.delete('/purchasedParts/unpaid/:id', verifyToken, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await purchasedPartsCollection.deleteOne(query);
+            res.send(result);
+        });
+
         // Delete a purchasedPart by its id
-        app.delete('/purchasedParts/:id', async (req, res) => {
+        app.delete('/purchasedParts/:id', verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await purchasedPartsCollection.deleteOne(query);
