@@ -337,9 +337,6 @@ async function run() {
             res.send(result);
         });
 
-        /*------------------------------------------------- 
-                Aggregation Pipeline API 2
-        --------------------------------------------------*/
 
         // Implement Aggregation Pipeline to the purchasedParts Collection with payments Collection to get details whether users have paid or not
         app.get('/purchasedParts/payments', verifyToken, verifyAdmin, async (req, res) => {
