@@ -135,7 +135,6 @@ async function run() {
         // Update the part data
         app.put('/parts/:id', verifyToken, verifyAdmin, async (req, res) => {
             const part = req.body;
-            console.log(part);
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
             const options = { upsert: true };
@@ -323,6 +322,62 @@ async function run() {
             ]).toArray();
 
             res.send(result);
+        });
+
+        /*----------------------------------------- 
+                Aggregation Pipeline API 2
+        ------------------------------------------*/
+
+        // Implement Aggregation Pipeline to the purchasedParts Collection with payments Collection to get details whether users have paid or not
+        app.get('/purchasedParts/payments', verifyToken, verifyAdmin, async (req, res) => {
+            const result = await purchasedPartsCollection.aggregate([
+                {
+                    $addFields: {
+                        _idString: { $toString: '$_id' }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'payments',
+                        localField: '_idString',
+                        foreignField: 'productId',
+                        as: 'paymentInfo'
+                    }
+                },
+                {
+                    $project: {
+                        _idString: 0
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$paymentInfo',
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $addFields: {
+                        transactionId: {
+                            $ifNull: ["$paymentInfo.transactionId", null]
+                        },
+                        status: {
+                            $cond: {
+                                if: {
+                                    $ifNull: ["$paymentInfo.status", null]
+                                },
+                                then: '$paymentInfo.status',
+                                else: 'unpaid'
+                            }
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        paymentInfo: 0
+                    }
+                }
+            ]).toArray();
+            res.send(result)
         });
 
 
