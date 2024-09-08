@@ -103,6 +103,8 @@ This is the backend server for the "CompParts Hub" MERN Stack project, a Parts M
     - `POST /create-payment-intent`
     - Creates a Stripe payment intent for an order.
 
+---
+
 ## Admin Credentials
 
 **email**: admin@gmail.com
