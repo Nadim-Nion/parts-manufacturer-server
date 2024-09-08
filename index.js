@@ -16,7 +16,7 @@ app.use(cors({
         'https://parts-manufacturer-client.web.app',
         'https://parts-manufacturer-client.firebaseapp.com',
         'https://parts-manufacturer-client-nion.netlify.app',
-        'https://acceptable-shoe.surge.sh'
+        'https://narrow-slave.surge.sh'
     ],
     credentials: true
 }));
