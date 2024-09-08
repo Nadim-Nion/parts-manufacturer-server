@@ -14,7 +14,8 @@ app.use(cors({
     origin: [
         // 'http://localhost:5173'
         'https://parts-manufacturer-client.web.app',
-        'https://parts-manufacturer-client.firebaseapp.com'
+        'https://parts-manufacturer-client.firebaseapp.com',
+        'https://parts-manufacturer-client-nion.netlify.app'
     ],
     credentials: true
 }));
