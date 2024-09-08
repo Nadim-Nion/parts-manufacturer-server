@@ -4,6 +4,8 @@
 
 This is the backend server for the "CompParts Hub" MERN Stack project, a Parts Manufacturer website. This repository handles the server-side logic, including authentication, order management, and admin functionalities. The backend is built using **Node.js**, **Express.js**, **MongoDB**, **JWT**, and **Stripe** for payment integration.
 
+---
+
 ## Key Features
 
 1. **Authentication**: Implemented using Firebase (email/password-based, social login with Google).
@@ -11,6 +13,8 @@ This is the backend server for the "CompParts Hub" MERN Stack project, a Parts M
 3. **User & Admin Dashboards**: Users can manage orders, leave reviews, and update profiles, while Admins can manage orders, products, and assign roles.
 4. **Stripe Payment Integration**: Users can complete purchases using credit cards, with payments handled by Stripe.
 5. **Parts Management**: Admins can add, update, and delete parts from the collection.
+
+---
 
 ## Technologies Used
 
@@ -20,6 +24,8 @@ This is the backend server for the "CompParts Hub" MERN Stack project, a Parts M
 - **JWT (JSON Web Token)**: Secures user and admin routes with token-based authentication.
 - **Stripe API**: Manages payment processing for orders.
 - **Firebase**: For authentication (email/password and Google login).
+
+---
 
 ## API Endpoints
 
@@ -151,6 +157,7 @@ Vercel: https://parts-manufacturer-server-nine.vercel.app/
   "phone": "string"
 }
 ```
+---
 
 ## Security
 
@@ -184,6 +191,8 @@ Vercel: https://parts-manufacturer-server-nine.vercel.app/
 
 4. Add environment variables in `.env.local` for Firebase and Stripe configurations.Absolutely, here's the section on commits with a potential improvement:
 
+---
+
 ## Commits
 
 This repository adheres to a structured commit message convention to enhance readability and maintainability. Here's an overview of the key commit types:
@@ -201,6 +210,9 @@ This repository adheres to a structured commit message convention to enhance rea
 Consider adopting a more comprehensive commit message convention like Conventional Commits ([https://www.conventionalcommits.org/en/v1.0.0-beta.4/](https://www.conventionalcommits.org/en/v1.0.0-beta.4/)). This approach provides a standard format for commit messages, including type, scope (optional), and a clear description of the change, making it easier to generate changelogs, automate workflows, and collaborate effectively.
 
 By following these guidelines and potentially adopting a more detailed convention, you'll ensure clear and consistent commit messages that benefit you and your team in the long run.
+
+---
+
 ## Contributing
 
 Contributions are always welcome!
@@ -209,11 +221,13 @@ Contributions are welcome! Please open a pull request for any improvements or fe
 
 Please adhere to this project's `code of conduct`.
 
+---
 
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
 
+---
 
 ## Deployment
 
@@ -229,6 +243,7 @@ git push -u origin main
 
 ```
 
+---
 
 ## Tech Stack
 
@@ -242,7 +257,7 @@ git push -u origin main
 
 **State Management:** Context API
 
-
+---
 
 ## FAQ
 
@@ -253,6 +268,8 @@ Answer : Yes, the full website is responsive for the all devices (Desktop, Table
 #### Is this website store data to the database?
 
 Answer : I have stored all the data in MongoDB.
+
+---
 
 ## 🚀 About Me
 Hi, I am Nadim Mahmud Nion. I have recently concluded my graduation from the department of Computer Science and Engineering (CSE) at the Daffodil International University (DIU). I have been learning MERN Stack Web Development since 2022. I am expertise in the following skills:
