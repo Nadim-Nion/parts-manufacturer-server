@@ -15,7 +15,8 @@ app.use(cors({
         // 'http://localhost:5173'
         'https://parts-manufacturer-client.web.app',
         'https://parts-manufacturer-client.firebaseapp.com',
-        'https://parts-manufacturer-client-nion.netlify.app'
+        'https://parts-manufacturer-client-nion.netlify.app',
+        'https://acceptable-shoe.surge.sh'
     ],
     credentials: true
 }));
